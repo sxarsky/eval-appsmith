@@ -58,6 +58,7 @@ SUPERUSER_STATUS=$(
     --data-urlencode "signupForNewsletter=false"
 ) || { echo "ERROR: network failure contacting ${APPSMITH_HOST}/api/v1/users/super" >&2; exit 1; }
 
+echo "DEBUG: superuser creation HTTP status: ${SUPERUSER_STATUS}" >&2
 case "${SUPERUSER_STATUS}" in
   2??|302) ;;
   400|409)
@@ -75,21 +76,26 @@ case "${SUPERUSER_STATUS}" in
 esac
 
 # Log in and capture the SESSION cookie
-SESSION_VALUE=$(
-  curl -si -X POST "${APPSMITH_HOST}/api/v1/login" \
+LOGIN_RESPONSE=$(curl -si -X POST "${APPSMITH_HOST}/api/v1/login" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -H "X-XSRF-TOKEN: ${XSRF_VALUE}" \
     -H "Cookie: ${XSRF_COOKIE}" \
     -H "Origin: ${APPSMITH_HOST}" \
     --data-urlencode "username=${ADMIN_EMAIL}" \
-    --data-urlencode "password=${ADMIN_PASSWORD}" \
+    --data-urlencode "password=${ADMIN_PASSWORD}" || true)
+
+echo "DEBUG login response headers:" >&2
+echo "$LOGIN_RESPONSE" | head -20 >&2
+
+SESSION_VALUE=$(echo "$LOGIN_RESPONSE" \
   | grep -i '^set-cookie:' \
   | grep -oi 'SESSION=[^;]*' \
-  | head -1 || true
-)
+  | head -1 || true)
 
 if [[ -z "$SESSION_VALUE" ]]; then
   echo "ERROR: could not obtain Appsmith session cookie — login failed" >&2
+  echo "DEBUG: all set-cookie headers:" >&2
+  echo "$LOGIN_RESPONSE" | grep -i '^set-cookie:' >&2 || true
   exit 1
 fi
 
