@@ -12,8 +12,8 @@ APPSMITH_HOST="${APPSMITH_HOST:-http://localhost:8080}"
 # Credentials come from scenario.json `uiCredentials` via start-services.sh.
 # This keeps scenario.json as the single source of truth — the same user
 # provisioned here is the one the testbot agent logs in as via the browser.
-ADMIN_EMAIL="${SKYRAMP_UI_USERNAME:-${APPSMITH_ADMIN_EMAIL:-}}"
-ADMIN_PASSWORD="${SKYRAMP_UI_PASSWORD:-${APPSMITH_ADMIN_PASSWORD:-}}"
+ADMIN_EMAIL="${SKYRAMP_UI_USERNAME:-${APPSMITH_ADMIN_EMAIL:-admin@eval.local}}"
+ADMIN_PASSWORD="${SKYRAMP_UI_PASSWORD:-${APPSMITH_ADMIN_PASSWORD:-Eval@dmin1!}}"
 ADMIN_NAME="Eval Admin"
 
 if [[ -z "$ADMIN_EMAIL" || -z "$ADMIN_PASSWORD" ]]; then
