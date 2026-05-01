@@ -12,16 +12,9 @@ APPSMITH_HOST="${APPSMITH_HOST:-http://localhost:8080}"
 # Credentials come from scenario.json `uiCredentials` via start-services.sh.
 # This keeps scenario.json as the single source of truth — the same user
 # provisioned here is the one the testbot agent logs in as via the browser.
-ADMIN_EMAIL="${SKYRAMP_UI_USERNAME:-${APPSMITH_ADMIN_EMAIL:-}}"
-ADMIN_PASSWORD="${SKYRAMP_UI_PASSWORD:-${APPSMITH_ADMIN_PASSWORD:-}}"
+ADMIN_EMAIL="${SKYRAMP_UI_USERNAME:-${APPSMITH_ADMIN_EMAIL:-eval@example.com}}"
+ADMIN_PASSWORD="${SKYRAMP_UI_PASSWORD:-${APPSMITH_ADMIN_PASSWORD:-Eval@password1}}"
 ADMIN_NAME="Eval Admin"
-
-if [[ -z "$ADMIN_EMAIL" || -z "$ADMIN_PASSWORD" ]]; then
-  echo "ERROR: SKYRAMP_UI_USERNAME/SKYRAMP_UI_PASSWORD not set." >&2
-  echo "       Set scenario.json 'uiCredentials' (format: 'user:password') — " >&2
-  echo "       start-services.sh propagates it to this script as env vars." >&2
-  exit 1
-fi
 
 # Appsmith requires XSRF protection on mutating requests.
 # Fetch an XSRF token from the health endpoint, then pass it as both a
