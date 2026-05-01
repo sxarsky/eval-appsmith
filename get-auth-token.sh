@@ -24,12 +24,15 @@ if [[ -z "$ADMIN_EMAIL" || -z "$ADMIN_PASSWORD" ]]; then
 fi
 
 # Appsmith requires XSRF protection on mutating requests.
-# Fetch an XSRF token from the health endpoint, then pass it as both a
-# cookie and the X-XSRF-TOKEN header. Origin is also required.
-XSRF_COOKIE=$(curl -sfi "${APPSMITH_HOST}/api/v1/health" \
+# /api/v1/users/me goes through Spring Security's CSRF filter (returning 401
+# for unauthenticated requests) and reliably sets XSRF-TOKEN even before login.
+# /api/v1/health may be excluded from the filter chain and not set the cookie.
+# Use -si (not -sfi) so curl doesn't fail on the expected 401 response.
+# || true prevents set -euo pipefail from killing the script on grep no-match.
+XSRF_COOKIE=$(curl -si "${APPSMITH_HOST}/api/v1/users/me" \
   | grep -i '^set-cookie:' \
   | grep -oi 'XSRF-TOKEN=[^;]*' \
-  | head -1)
+  | head -1 || true)
 XSRF_VALUE="${XSRF_COOKIE#XSRF-TOKEN=}"
 
 if [[ -z "${XSRF_COOKIE}" || -z "${XSRF_VALUE}" ]]; then
@@ -82,7 +85,7 @@ SESSION_VALUE=$(
     --data-urlencode "password=${ADMIN_PASSWORD}" \
   | grep -i '^set-cookie:' \
   | grep -oi 'SESSION=[^;]*' \
-  | head -1
+  | head -1 || true
 )
 
 if [[ -z "$SESSION_VALUE" ]]; then
