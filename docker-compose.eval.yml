@@ -1,0 +1,194 @@
+services:
+  # Build step 1: compile Java backend with Maven
+  # Run first: docker compose -f docker-compose.eval.yml run --rm appsmith-builder
+  appsmith-builder:
+    image: maven:3.9-eclipse-temurin-17
+    working_dir: /app/app/server
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+      - /tmp/eval-logs:/eval-logs
+    # Calls appsmith's own build.sh (single source of truth for the backend
+    # build + plugin assembly). The upstream script needs `rsync` to copy
+    # plugin JARs into dist/plugins and `node` to run a field-constants
+    # validation step — neither is in the base maven image, so install both
+    # before invoking.
+    command: >
+      bash -c "
+        apt-get update -qq && apt-get install -y -qq --no-install-recommends rsync nodejs > /dev/null &&
+        ./build.sh -DskipTests -T 1C -q --no-transfer-progress > /eval-logs/build.log 2>&1 ||
+        (echo '=== BUILD FAILED — last 60 lines ===' && tail -60 /eval-logs/build.log && exit 1)
+      "
+
+  # Build step 2: build React frontend
+  # Run second: docker compose -f docker-compose.eval.yml run --rm appsmith-frontend-builder
+  appsmith-frontend-builder:
+    image: node:20.11.1
+    working_dir: /app/app/client
+    volumes:
+      - .:/app
+      - node-modules-cache:/app/app/client/node_modules
+      - /tmp/eval-logs:/eval-logs
+    command: >
+      bash -c "
+        git config --global --add safe.directory /app &&
+        (yarn install --immutable --silent && REACT_APP_ENVIRONMENT=PRODUCTION yarn build --silent) > /eval-logs/frontend-build.log 2>&1 ||
+        (echo '=== FRONTEND BUILD FAILED — last 60 lines ===' && tail -60 /eval-logs/frontend-build.log && exit 1) &&
+        echo 'Frontend build complete.'
+      "
+
+  # MongoDB with replica set (required by Appsmith).
+  # Healthcheck initiates rs0 on first start and verifies primary is writable.
+  mongodb:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: appsmith
+    command: --replSet rs0
+    healthcheck:
+      test: >
+        mongosh --quiet --eval "
+          try { rs.status(); } catch (e) {
+            rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongodb:27017' }] });
+          }
+          if (!db.hello().isWritablePrimary) { quit(1); }
+        " || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+  # Redis for caching
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: redis-cli ping || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Appsmith Spring Boot API server (port 8080, internal only).
+  # Requires JAR to exist — run appsmith-builder first.
+  # The --add-opens flags are required to let Spring Boot's nested-jar
+  # FileSystemProvider reach internal java.nio APIs. Without them the pf4j
+  # plugin manager fails on startup with "ServiceConfigurationError:
+  # java.nio.file.spi.FileSystemProvider". Mirrors the official
+  # appsmith-ce image's opt/appsmith/run-java.sh.
+  appsmith-server:
+    image: eclipse-temurin:17-jre
+    # Leave the container working_dir at the image default so that Docker
+    # Desktop's healthcheck exec can launch (a mounted working_dir can
+    # trip "current working directory is outside of container mount
+    # namespace root" on macOS). The command cd's to the dist mount
+    # itself so pf4j sees plugins at ./plugins.
+    volumes:
+      - ./app/server/dist:/opt/appsmith
+    environment:
+      APPSMITH_MONGODB_URI: mongodb://mongodb:27017/appsmith
+      APPSMITH_REDIS_URL: redis://redis:6379
+      # Encryption values are intentional eval-only defaults; override via env vars for real deployments
+      APPSMITH_ENCRYPTION_PASSWORD: ${APPSMITH_ENCRYPTION_PASSWORD:-appsmith-eval-password}
+      APPSMITH_ENCRYPTION_SALT: ${APPSMITH_ENCRYPTION_SALT:-appsmith-eval-salt}
+      APPSMITH_GIT_ROOT: /tmp/git-storage
+      SERVER_PORT: 8080
+    command: >
+      bash -c "
+        cd /opt/appsmith &&
+        jar_file=$$(find . -maxdepth 1 -name 'server-*.jar' | head -1) &&
+        if [ -z \"$$jar_file\" ]; then
+          echo 'ERROR: server JAR not found in /opt/appsmith. Run appsmith-builder first.';
+          exit 1;
+        fi &&
+        echo \"Starting Appsmith server: $$jar_file\" &&
+        java -Xmx2g --add-opens java.base/java.time=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED -Djava.security.egd=file:/dev/./urandom -Dlog4j2.formatMsgNoLookups=true -jar $$jar_file
+      "
+    ports:
+      - "8080:8080"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: bash -c '</dev/tcp/localhost/8080' || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 18  # 180s total
+      start_period: 90s
+
+  # One-shot init: copies the RTS bundle from the official Appsmith image into
+  # the rts-bundle named volume so appsmith-rts can start it.
+  appsmith-rts-init:
+    image: appsmith/appsmith-ce:release
+    entrypoint: ["sh", "-c", "cp -r /opt/appsmith/rts/bundle/. /rts-bundle/ && echo 'RTS bundle ready'"]
+    volumes:
+      - rts-bundle:/rts-bundle
+
+  # RTS (Real-Time Server) — Node.js service that appsmith-server calls at
+  # 127.0.0.1:8091. The host is hardcoded in RTSCallerCEImpl.java so RTS
+  # must share appsmith-server's network namespace.
+  appsmith-rts:
+    image: node:20
+    network_mode: "service:appsmith-server"
+    volumes:
+      - rts-bundle:/opt/appsmith/rts/bundle
+    command: node /opt/appsmith/rts/bundle/server.js
+    depends_on:
+      appsmith-rts-init:
+        condition: service_completed_successfully
+      appsmith-server:
+        condition: service_healthy
+
+  # Caddy: serves frontend static files + proxies /api/* to backend.
+  # Access Appsmith UI at http://localhost:80
+  # Requires frontend build — run appsmith-frontend-builder first.
+  appsmith-frontend:
+    image: caddy:2
+    ports:
+      - "80:80"
+    volumes:
+      - ./app/client/build:/srv/editor:ro
+    command:
+      - sh
+      - -c
+      - |
+        cat > /tmp/Caddyfile << 'CADDYEOF'
+        :80 {
+          root * /srv/editor
+          encode gzip
+          templates
+
+          handle /api/* {
+            reverse_proxy appsmith-server:8080
+          }
+          handle /oauth2/* {
+            reverse_proxy appsmith-server:8080
+          }
+          handle /login/* {
+            reverse_proxy appsmith-server:8080
+          }
+
+          handle {
+            try_files {path} /index.html
+            file_server
+          }
+        }
+        CADDYEOF
+        caddy run --config /tmp/Caddyfile --adapter caddyfile
+    depends_on:
+      appsmith-server:
+        condition: service_healthy
+    healthcheck:
+      test: curl -sf http://localhost:80 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 12  # 120s total
+      start_period: 10s
+
+volumes:
+  maven-cache:
+  node-modules-cache:
+  rts-bundle:

@@ -1,0 +1,36 @@
+# Skyramp Workspace Configuration for Appsmith eval.
+# Appsmith uses Spring Security session cookies (SESSION=<value>).
+# authType: cookie causes the executor to send: Cookie: <SKYRAMP_TEST_TOKEN>
+# get-auth-token.sh outputs "SESSION=<value>" as SKYRAMP_TEST_TOKEN.
+# Credentials set via SKYRAMP_UI_USERNAME / SKYRAMP_UI_PASSWORD env vars.
+workspace:
+  repoName: sxarsky/eval-appsmith
+  repoUrl: git@github.com:sxarsky/eval-appsmith.git
+metadata:
+  schemaVersion: v1
+  mcpVersion: 1.0.0
+  executorVersion: v1.3.14
+  createdAt: "2026-05-01T00:00:00Z"
+  updatedAt: "2026-05-01T00:00:00Z"
+services:
+  - serviceName: appsmith-server
+    language: java
+    framework: junit
+    testDirectory: app/server/appsmith-server/src/test
+    api:
+      baseUrl: http://localhost:8080
+      schemaPath: http://localhost:8080/v3/api-docs
+      authType: cookie
+      authHeader: Cookie
+    runtimeDetails:
+      runtime: local
+      serverStartCommand: 'docker compose -f docker-compose.eval.yml up appsmith-server -d'
+  - serviceName: appsmith-frontend
+    language: javascript
+    framework: playwright
+    testDirectory: app/client/playwright
+    api:
+      baseUrl: http://localhost:80
+    runtimeDetails:
+      runtime: local
+      serverStartCommand: 'docker compose -f docker-compose.eval.yml up appsmith-frontend -d'
