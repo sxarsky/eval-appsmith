@@ -2,7 +2,7 @@ services:
   # Build step 1: compile Java backend with Maven
   # Run first: docker compose -f docker-compose.eval.yml run --rm appsmith-builder
   appsmith-builder:
-    image: maven:3.9-eclipse-temurin-25
+    image: maven:3.9-eclipse-temurin-17
     working_dir: /app/app/server
     volumes:
       - .:/app
@@ -78,7 +78,7 @@ services:
   # java.nio.file.spi.FileSystemProvider". Mirrors the official
   # appsmith-ce image's opt/appsmith/run-java.sh.
   appsmith-server:
-    image: eclipse-temurin:25-jre
+    image: eclipse-temurin:17-jre
     # Leave the container working_dir at the image default so that Docker
     # Desktop's healthcheck exec can launch (a mounted working_dir can
     # trip "current working directory is outside of container mount
