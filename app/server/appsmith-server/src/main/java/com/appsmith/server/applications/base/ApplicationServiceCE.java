@@ -17,14 +17,45 @@ import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
 
+    /**
+     * Look up an application by id. The caller's ACL permissions are NOT applied;
+     * use {@link #findById(String, AclPermission)} when permission filtering is needed.
+     *
+     * @param id the application id
+     * @return a Mono emitting the application when found, otherwise empty
+     */
     Mono<Application> getById(String id);
 
+    /**
+     * Look up an application by branched id, returning only the requested projection of fields.
+     *
+     * @param id                  the branched application id
+     * @param projectionFieldNames the list of field names to project; may be empty to return all fields
+     * @return a Mono emitting the projected application when found, otherwise empty
+     */
     Mono<Application> findByBranchedId(String id, List<String> projectionFieldNames);
 
     Mono<Application> findById(String id);
 
+    /**
+     * Look up an application by id, applying the supplied ACL permission to the caller's
+     * permission group memberships. Returns empty if the application does not exist or the
+     * caller lacks the requested permission.
+     *
+     * @param id            the application id
+     * @param aclPermission the permission required to read the application
+     * @return a Mono emitting the application when found and accessible, otherwise empty
+     */
     Mono<Application> findById(String id, AclPermission aclPermission);
 
+    /**
+     * Stream all applications in the given workspace that the caller can access under the
+     * supplied permission.
+     *
+     * @param workspaceId the workspace id
+     * @param permission  the permission required for each application to be included
+     * @return a Flux of accessible applications, emitted in the repository's natural order
+     */
     Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
     Flux<Application> findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(String workspaceId);
