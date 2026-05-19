@@ -312,12 +312,27 @@ export class ApplicationApi extends Api {
     return Api.get(ApplicationApi.baseURL);
   }
 
+  /**
+   * Fetches the paginated application list for the current workspace.
+   *
+   * The backend now returns `{items, pagination: {page, pageSize, total}}`
+   * by default. Legacy callers that still need the flat-array shape can
+   * opt in by sending `Accept-Version: v1` via Api.get options.
+   */
   static async fetchAllApplicationsOfWorkspace(
     workspaceId: string,
+    page = 1,
+    pageSize = 20,
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
-    return Api.get(ApplicationApi.baseURL + "/home?workspaceId=" + workspaceId);
+    const params = new URLSearchParams({
+      workspaceId,
+      page: String(page),
+      pageSize: String(pageSize),
+    });
+
+    return Api.get(`${ApplicationApi.baseURL}/home?${params.toString()}`);
   }
 
   static async getReleaseItems(): Promise<
