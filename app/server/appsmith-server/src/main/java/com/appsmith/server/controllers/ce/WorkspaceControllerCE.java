@@ -3,10 +3,13 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InvitationRequestDTO;
+import com.appsmith.server.dtos.InvitationResponseDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+import com.appsmith.server.services.InvitationService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -33,6 +36,17 @@ import java.util.List;
 public class WorkspaceControllerCE {
     private final WorkspaceService service;
     private final UserWorkspaceService userWorkspaceService;
+    private final InvitationService invitationService;
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{workspaceId}/invitations")
+    public Mono<ResponseDTO<InvitationResponseDTO>> inviteMember(
+            @PathVariable String workspaceId,
+            @Valid @RequestBody InvitationRequestDTO request) {
+        return invitationService
+                .invite(workspaceId, request)
+                .map(payload -> new ResponseDTO<>(HttpStatus.OK, payload));
+    }
 
     @JsonView(Views.Public.class)
     @GetMapping("/{id}")
