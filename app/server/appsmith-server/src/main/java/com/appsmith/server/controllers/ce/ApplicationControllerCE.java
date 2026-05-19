@@ -20,6 +20,7 @@ import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.BuildingBlockDTO;
 import com.appsmith.server.dtos.BuildingBlockResponseDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.PaginatedApplicationsDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -130,12 +131,40 @@ public class ApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/home")
-    public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
-            @RequestParam(required = false) String workspaceId) {
-        log.debug("Going to get all applications by workspace id {}", workspaceId);
+    public Mono<ResponseDTO<Object>> findByWorkspaceIdAndRecentlyUsedOrder(
+            @RequestParam(required = false) String workspaceId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestHeader(name = "Accept-Version", required = false) String acceptVersion) {
+        log.debug(
+                "Going to get all applications by workspace id {} page={} pageSize={} acceptVersion={}",
+                workspaceId,
+                page,
+                pageSize,
+                acceptVersion);
+
+        // Legacy callers opt into the pre-pagination flat-array shape by
+        // sending Accept-Version: v1. New callers (default) receive the
+        // paginated wrapper with items + pagination metadata.
+        boolean legacy = "v1".equalsIgnoreCase(acceptVersion);
+        int resolvedPage = page == null || page < 1 ? 1 : page;
+        int resolvedPageSize = pageSize == null ? 20 : Math.max(1, Math.min(pageSize, 100));
+
         return service.findByWorkspaceIdAndBaseApplicationsForHome(workspaceId)
                 .collectList()
-                .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
+                .map(applications -> {
+                    if (legacy) {
+                        return new ResponseDTO<>(HttpStatus.OK, (Object) applications);
+                    }
+                    int total = applications.size();
+                    int from = Math.min((resolvedPage - 1) * resolvedPageSize, total);
+                    int to = Math.min(from + resolvedPageSize, total);
+                    List<Application> pageItems = applications.subList(from, to);
+                    PaginatedApplicationsDTO body = new PaginatedApplicationsDTO(
+                            pageItems,
+                            new PaginatedApplicationsDTO.PaginationMeta(resolvedPage, resolvedPageSize, total));
+                    return new ResponseDTO<>(HttpStatus.OK, (Object) body);
+                });
     }
 
     @JsonView(Views.Public.class)
