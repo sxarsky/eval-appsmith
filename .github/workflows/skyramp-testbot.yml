@@ -133,5 +133,11 @@ jobs:
 
           testDirectory: 'app/server/appsmith-server/src/test'
           autoCommit: true
+          # Appsmith's Spotless git pre-commit hook blocks the side-PR commit
+          # when the spotless tool isn't on the runner PATH. Per TestBot's own
+          # recommended mitigation (Issues Found on AS17/PR-34): write the
+          # generated tests on the same branch as the source PR so the
+          # separate side-PR commit path is skipped.
+          generatedTestsMode: same-branch
           postPrComment: true
           enableDebug: true
