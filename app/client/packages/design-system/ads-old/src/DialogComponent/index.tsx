@@ -183,6 +183,7 @@ export function DialogComponent(props: DialogComponentProps) {
         canEscapeKeyClose={!!props.canEscapeKeyClose}
         canOutsideClickClose={!!props.canOutsideClickClose}
         className={props.className}
+        data-testid="dialog-component-wrapper"
         icon={headerIcon}
         isCloseButtonShown={isCloseButtonShown}
         isOpen={isOpen}
