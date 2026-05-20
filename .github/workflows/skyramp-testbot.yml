@@ -133,5 +133,7 @@ jobs:
 
           testDirectory: 'app/server/appsmith-server/src/test'
           autoCommit: true
+          # Spotless mitigation for Java-touching PRs (see AS17-v2/PR-44).
+          generatedTestsMode: same-branch
           postPrComment: true
           enableDebug: true
