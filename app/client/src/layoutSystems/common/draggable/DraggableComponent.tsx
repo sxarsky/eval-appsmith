@@ -14,6 +14,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
+import { useDragPointer } from "./useDragPointer";
 
 const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;
@@ -106,6 +107,30 @@ function DraggableComponent(props: DraggableComponentProps) {
   const allowDrag = !props.dragDisabled && shouldAllowDrag;
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
+
+  // Pointer-events drag pipeline (DR-AS11). Mirrors the existing HTML5
+  // drag-events flow but uses pointerdown/pointermove/pointerup so the
+  // gesture is unified across mouse, touch, and pen, and so Escape can
+  // cancel a drag in flight.
+  const { dragState, pointerHandlers } = useDragPointer({
+    onPointerDragStart: () => {
+      if (!allowDrag || !draggableRef.current || !isFocused) return;
+      if (!isSelected) {
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
+      }
+      showTableFilterPane();
+    },
+    onPointerDragEnd: () => {
+      // onDrop semantics are preserved by the consuming code via the
+      // existing setDraggingState dispatch chain — no additional work
+      // is required at the pointer-up boundary today.
+    },
+    onPointerDragCancel: () => {
+      // Reset the redux dragging flag if a drag is cancelled mid-gesture.
+      setDraggingState({ isDragging: false });
+    },
+  });
+
   const onDragStart: DragEventHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -129,10 +154,13 @@ function DraggableComponent(props: DraggableComponentProps) {
   return (
     <DraggableWrapper
       className={className}
-      data-testid={isSelected ? "t--selected" : ""}
+      data-drag-state={dragState}
+      data-testid="draggable-pointer-surface"
+      data-widget-selected={isSelected ? "true" : "false"}
       draggable={allowDrag}
       onDragStart={onDragStart}
       ref={draggableRef}
+      {...pointerHandlers}
       style={dragWrapperStyle}
     >
       {props.children}
