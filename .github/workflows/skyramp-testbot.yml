@@ -133,5 +133,10 @@ jobs:
 
           testDirectory: 'app/server/appsmith-server/src/test'
           autoCommit: true
+          # Appsmith's Spotless git pre-commit hook blocks the side-PR
+          # commit on Java-touching PRs (recurring issue, see AS17/PR-34).
+          # Per TestBot's own mitigation: write generated tests on the
+          # source branch directly to skip the separate side-PR commit.
+          generatedTestsMode: same-branch
           postPrComment: true
           enableDebug: true
