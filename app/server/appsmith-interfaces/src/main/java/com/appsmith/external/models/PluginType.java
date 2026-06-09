@@ -4,7 +4,7 @@ public enum PluginType {
     DB,
     API,
     JS,
-    SAAS,
+    EXTERNAL_SAAS,
     REMOTE,
     AI,
     INTERNAL,

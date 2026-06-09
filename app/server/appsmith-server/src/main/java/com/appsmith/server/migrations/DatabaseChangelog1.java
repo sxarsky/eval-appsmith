@@ -577,7 +577,7 @@ public class DatabaseChangelog1 {
     public void addGoogleSheetsPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Google Sheets");
-        plugin.setType(PluginType.SAAS);
+        plugin.setType(PluginType.EXTERNAL_SAAS);
         plugin.setPackageName("google-sheets-plugin");
         plugin.setUiComponent("SaaSEditorForm");
         plugin.setDatasourceComponent("OAuth2DatasourceForm");

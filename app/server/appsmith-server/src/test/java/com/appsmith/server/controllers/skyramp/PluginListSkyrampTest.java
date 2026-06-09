@@ -36,7 +36,7 @@ public class PluginListSkyrampTest {
     public void getPluginsReturnsTypeForSaasPlugin() {
         Plugin plugin = new Plugin();
         plugin.setName("Airtable");
-        plugin.setType(PluginType.SAAS);
+        plugin.setType(PluginType.EXTERNAL_SAAS);
         Mockito.when(pluginService.getInWorkspace(any())).thenReturn(Flux.just(plugin));
 
         webTestClient
