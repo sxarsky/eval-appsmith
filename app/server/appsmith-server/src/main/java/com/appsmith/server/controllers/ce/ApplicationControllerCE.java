@@ -131,7 +131,7 @@ public class ApplicationControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/home")
     public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
-            @RequestParam(required = false) String workspaceId) {
+            @RequestParam String workspaceId) {
         log.debug("Going to get all applications by workspace id {}", workspaceId);
         return service.findByWorkspaceIdAndBaseApplicationsForHome(workspaceId)
                 .collectList()
