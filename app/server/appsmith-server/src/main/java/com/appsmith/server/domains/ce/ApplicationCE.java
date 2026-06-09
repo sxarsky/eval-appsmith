@@ -130,6 +130,9 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     @JsonView({Views.Public.class, Git.class})
     Integer applicationVersion;
 
+    // Persisted by the fork service; not yet exposed on the public API contract.
+    Instant lastForkedAt;
+
     /**
      * Changing name, change in pages, widgets and datasources will set lastEditedAt.
      * Other activities e.g. changing policy will not change this property.
