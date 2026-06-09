@@ -68,6 +68,7 @@ import static com.appsmith.server.constants.Url.ASSET_URL;
 import static com.appsmith.server.constants.Url.CUSTOM_JS_LIB_URL;
 import static com.appsmith.server.constants.Url.ORGANIZATION_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
+import static com.appsmith.server.constants.Url.PLUGIN_URL;
 import static com.appsmith.server.constants.Url.PRODUCT_ALERT;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
@@ -220,6 +221,7 @@ public class SecurityConfig {
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, THEME_URL + "/**"),
+                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PLUGIN_URL),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ORGANIZATION_URL + "/current"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
