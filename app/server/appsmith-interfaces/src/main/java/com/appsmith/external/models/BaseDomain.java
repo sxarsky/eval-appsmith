@@ -50,7 +50,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @CreatedDate
     protected Instant createdAt;
 
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Public.class)
     @LastModifiedDate
     protected Instant updatedAt;
 
