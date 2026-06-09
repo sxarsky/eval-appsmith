@@ -159,7 +159,7 @@ public class CustomNewActionRepositoryCEImplTest {
 
         // one action with applicationId1 and pluginType DB and one action with applicationId1 and pluginType SAAS
         actionList.add(createAction(applicationId1, PluginType.DB));
-        actionList.add(createAction(applicationId1, PluginType.SAAS));
+        actionList.add(createAction(applicationId1, PluginType.EXTERNAL_SAAS));
 
         // one action with applicationId2 and pluginType API
         actionList.add(createAction(applicationId2, PluginType.API));
@@ -181,7 +181,7 @@ public class CustomNewActionRepositoryCEImplTest {
                             assertThat(pluginTypeAndCountDTO.getCount()).isEqualTo(2);
                         } else if (pluginTypeAndCountDTO.getPluginType().equals(PluginType.DB)) {
                             assertThat(pluginTypeAndCountDTO.getCount()).isEqualTo(1);
-                        } else if (pluginTypeAndCountDTO.getPluginType().equals(PluginType.SAAS)) {
+                        } else if (pluginTypeAndCountDTO.getPluginType().equals(PluginType.EXTERNAL_SAAS)) {
                             assertThat(pluginTypeAndCountDTO.getCount()).isEqualTo(1);
                         }
                     });

@@ -45,7 +45,7 @@ public class Migration007OptOutUnsupportedPluginsForAirGap {
                 AMAZON_S3_PLUGIN,
                 GOOGLE_SHEETS_PLUGIN);
 
-        final Set<PluginType> cloudServicesDependentPluginTypes = Set.of(PluginType.SAAS, PluginType.REMOTE);
+        final Set<PluginType> cloudServicesDependentPluginTypes = Set.of(PluginType.EXTERNAL_SAAS, PluginType.REMOTE);
 
         List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
         for (Plugin plugin : plugins) {

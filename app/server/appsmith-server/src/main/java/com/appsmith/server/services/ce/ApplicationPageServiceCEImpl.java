@@ -1265,7 +1265,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Integer dbQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.DB);
                     Integer apiCount = getActionCount(pluginTypeCollectionMap, PluginType.API);
                     Integer jsFuncCount = getActionCount(pluginTypeCollectionMap, PluginType.JS);
-                    Integer saasQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.SAAS);
+                    Integer saasQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.EXTERNAL_SAAS);
                     Integer remoteQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.REMOTE);
                     Integer aiQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.AI);
 

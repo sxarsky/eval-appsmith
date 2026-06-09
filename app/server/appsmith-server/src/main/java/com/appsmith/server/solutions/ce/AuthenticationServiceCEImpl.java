@@ -735,7 +735,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         return pluginService
                 .findById(datasourceStorage.getPluginId())
                 .filter(plugin ->
-                        PluginType.SAAS.equals(plugin.getType()) || PluginType.REMOTE.equals(plugin.getType()))
+                        PluginType.EXTERNAL_SAAS.equals(plugin.getType()) || PluginType.REMOTE.equals(plugin.getType()))
                 .zipWith(configService.getInstanceId())
                 .flatMap(tuple -> {
                     Plugin plugin = tuple.getT1();
