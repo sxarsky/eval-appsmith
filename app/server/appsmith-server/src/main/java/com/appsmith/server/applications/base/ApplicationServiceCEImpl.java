@@ -285,8 +285,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         }
 
         if (application.getApplicationVersion() != null) {
-            int appVersion = application.getApplicationVersion();
-            if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+            String appVersion = application.getApplicationVersion();
+            if (!ApplicationVersion.isSupported(appVersion)) {
                 return Mono.error(
                         new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
             }
@@ -360,9 +360,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             }
 
             if (application.getApplicationVersion() != null) {
-                int appVersion = application.getApplicationVersion();
-                if (appVersion < ApplicationVersion.EARLIEST_VERSION
-                        || appVersion > ApplicationVersion.LATEST_VERSION) {
+                String appVersion = application.getApplicationVersion();
+                if (!ApplicationVersion.isSupported(appVersion)) {
                     return Mono.error(new AppsmithException(
                             AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
                 }
