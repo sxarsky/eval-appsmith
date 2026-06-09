@@ -59,7 +59,7 @@ public class PluginControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/default/icons")
+    @GetMapping("/default/logos")
     public Mono<ResponseDTO<List<Plugin>>> getDefaultPluginIcons() {
         return service.getDefaultPluginIcons().collectList().map(data -> new ResponseDTO<>(HttpStatus.OK, data));
     }
