@@ -128,7 +128,7 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
      * Once updated, we should set applicationVersion to latest version as well.
      */
     @JsonView({Views.Public.class, Git.class})
-    Integer applicationVersion;
+    String applicationVersion;
 
     /**
      * Changing name, change in pages, widgets and datasources will set lastEditedAt.
