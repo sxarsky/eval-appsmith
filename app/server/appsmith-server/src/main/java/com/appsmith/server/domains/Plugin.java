@@ -48,6 +48,9 @@ public class Plugin extends BaseDomain {
     String iconLocation;
 
     @JsonView(Views.Public.class)
+    String largeIconLocation;
+
+    @JsonView(Views.Public.class)
     String documentationLink;
 
     @JsonView(Views.Public.class)
