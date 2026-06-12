@@ -20,10 +20,18 @@ import java.io.Serializable;
 @FieldNameConstants
 public class Application extends ApplicationCE implements Artifact {
 
+    /**
+     * Lifecycle state for the publish/unpublish/archive workflow.
+     * Null is treated as {@link ApplicationLifecycleState#DRAFT} for back-compat
+     * with applications created before the lifecycle field was introduced.
+     */
+    private ApplicationLifecycleState lifecycleState;
+
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
         super(application);
+        this.lifecycleState = application.lifecycleState;
     }
 
     @Data
