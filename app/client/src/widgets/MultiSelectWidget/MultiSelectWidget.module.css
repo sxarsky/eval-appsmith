@@ -1,0 +1,88 @@
+.root {
+  position: relative;
+  display: inline-block;
+  min-width: 280px;
+  outline: none;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--ads-v2-color-border, #ccc);
+  border-radius: 4px;
+  background: var(--ads-v2-color-bg, white);
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.placeholder {
+  color: var(--ads-v2-color-fg-muted, #999);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: var(--ads-v2-color-bg-subtle, #f4f4f4);
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.chipRemove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.clearAll {
+  background: none;
+  border: none;
+  color: var(--ads-v2-color-fg-muted, #666);
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--ads-v2-color-bg, white);
+  border: 1px solid var(--ads-v2-color-border, #ccc);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.optionFocused {
+  background: var(--ads-v2-color-bg-subtle, #f4f4f4);
+}
