@@ -48,6 +48,7 @@ import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import Setup from "pages/setup";
 import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
+import TableBindingDemoPage from "pages/TableBindingDemo";
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
@@ -90,6 +91,11 @@ export function Routes() {
       <SentryRoute component={SignupSuccess} exact path={SIGNUP_SUCCESS_URL} />
       <SentryRoute component={Setup} exact path={SETUP} />
       <SentryRoute component={TemplatesListLoader} path={TEMPLATES_PATH} />
+      <SentryRoute
+        component={TableBindingDemoPage}
+        exact
+        path="/widgets/table-binding-demo"
+      />
       <Redirect
         exact
         from={ADMIN_SETTINGS_PATH}
