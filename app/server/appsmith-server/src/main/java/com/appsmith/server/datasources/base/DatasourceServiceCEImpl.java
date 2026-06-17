@@ -755,6 +755,19 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         });
     }
 
+    public Flux<Datasource> findAllByIdsWithStorages(List<String> ids) {
+        return repository.findAllById(ids)
+                .publishOn(Schedulers.boundedElastic())
+                .flatMap(datasource -> datasourceStorageService
+                        .findByDatasource(datasource)
+                        .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
+                        .collectMap(DatasourceStorageDTO::getEnvironmentId)
+                        .map(storages -> {
+                            datasource.setDatasourceStorages(storages);
+                            return datasource;
+                        }));
+    }
+
     @Override
     public Mono<Datasource> findByIdAndEnvironmentId(String id, String environmentId) {
         return repository.findById(id).flatMap(datasource -> {
