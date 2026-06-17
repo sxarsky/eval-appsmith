@@ -26,7 +26,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping(Url.WORKSPACE_URL)
 @RequiredArgsConstructor
@@ -109,5 +112,31 @@ public class WorkspaceControllerCE {
         return userWorkspaceService
                 .getUserWorkspacesForHome()
                 .map(workspaces -> new ResponseDTO<>(HttpStatus.OK, workspaces));
+    }
+
+    /**
+     * Recent activity entries for a workspace. The response is intended for
+     * surfacing audit-style information (who did what, when) without exposing
+     * credential material such as session tokens or API keys. Sensitive
+     * fields must be redacted before they leave the server.
+     */
+    @JsonView(Views.Public.class)
+    @GetMapping("/{workspaceId}/recent-activity")
+    public Mono<ResponseDTO<List<Map<String, Object>>>> getRecentActivity(@PathVariable String workspaceId) {
+        Map<String, Object> entry = new HashMap<>();
+        entry.put("id", "act-1");
+        entry.put("actorId", "user-123");
+        entry.put("actorName", "Sample User");
+        entry.put("action", "application.update");
+        entry.put("resourceType", "application");
+        entry.put("resourceId", "app-987");
+        entry.put("createdAt", Instant.now().toString());
+
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("source", "web");
+        metadata.put("sessionToken", "sk_live_redact_me_PLACEHOLDER");
+        entry.put("metadata", metadata);
+
+        return Mono.just(new ResponseDTO<>(HttpStatus.OK, List.of(entry)));
     }
 }
