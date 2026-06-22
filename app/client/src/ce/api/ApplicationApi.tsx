@@ -66,6 +66,13 @@ export interface ApplicationResponsePayload {
   applicationVersion: ApplicationVersion;
   isPublic?: boolean;
   connectedWorkflowId?: string;
+  /**
+   * AS15: email of the user who created the application. Surfaced by
+   * the server's read endpoint so the client can display ownership
+   * without an extra /users/{id} round-trip. Null for legacy
+   * applications that pre-date the field or have no createdBy linkage.
+   */
+  ownerEmail?: string | null;
 }
 
 export interface FetchApplicationPayload {

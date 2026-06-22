@@ -20,10 +20,22 @@ import java.io.Serializable;
 @FieldNameConstants
 public class Application extends ApplicationCE implements Artifact {
 
+    /**
+     * AS15: surface the email of the user who created the application
+     * on the public read response so callers can display ownership in
+     * application lists without an extra /users/{id} round-trip.
+     *
+     * Nullable: legacy applications that pre-date the field will not
+     * have a populated value; the controller populates this from the
+     * application's createdBy linkage when available.
+     */
+    private String ownerEmail;
+
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
         super(application);
+        this.ownerEmail = application.ownerEmail;
     }
 
     @Data

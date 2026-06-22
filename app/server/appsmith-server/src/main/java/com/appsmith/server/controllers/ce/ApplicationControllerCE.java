@@ -170,7 +170,16 @@ public class ApplicationControllerCE {
     @GetMapping("/view/{branchedApplicationId}")
     public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String branchedApplicationId) {
         return service.getApplicationInViewMode(branchedApplicationId)
-                .map(application -> new ResponseDTO<>(HttpStatus.OK, application));
+                .map(application -> {
+                    // AS15: populate ownerEmail from the createdBy linkage so
+                    // public read responses include the new field without
+                    // requiring a follow-up /users/{id} call. Null when the
+                    // application predates the field or createdBy is not set.
+                    if (application.getOwnerEmail() == null && application.getCreatedBy() != null) {
+                        application.setOwnerEmail(application.getCreatedBy());
+                    }
+                    return new ResponseDTO<>(HttpStatus.OK, application);
+                });
     }
 
     @JsonView(Views.Public.class)
