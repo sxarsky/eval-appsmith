@@ -17,7 +17,7 @@ type DialogProps = PropsWithChildren<{
 
 const StyledDialog = styled(Dialog)<DialogProps>`
   && {
-    border-radius: var(--ads-v2-border-radius);
+    border-radius: 8px;
     padding: 24px;
     background: var(--ads-dialog-component-default-background-color);
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
