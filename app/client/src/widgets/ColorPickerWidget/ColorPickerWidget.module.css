@@ -1,0 +1,41 @@
+.colorPicker {
+  position: relative;
+  display: inline-block;
+}
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ads-v2-color-border, #ccc);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10;
+  background: var(--ads-v2-color-bg, white);
+  border: 1px solid var(--ads-v2-color-border, #ccc);
+  border-radius: 6px;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+}
+
+.input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--ads-v2-color-border, #ccc);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.error {
+  margin-top: 6px;
+  color: var(--ads-v2-color-fg-error, #cc0000);
+  font-size: 12px;
+}
