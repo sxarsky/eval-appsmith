@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
+import { StatusBadge } from "./StatusBadge";
 import styled, { ThemeContext } from "styled-components";
 import type { ApplicationPayload } from "entities/Application";
 import {
@@ -554,6 +555,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
       title={application.name}
       titleTestId="t--app-card-name"
     >
+      <StatusBadge
+        data-testid="t--app-card-status-badge"
+        status={(application as unknown as { lifecycleState?: string }).lifecycleState}
+      />
       {hasEditPermission && !isMenuOpen && (
         <Button
           className="t--application-edit-link"
