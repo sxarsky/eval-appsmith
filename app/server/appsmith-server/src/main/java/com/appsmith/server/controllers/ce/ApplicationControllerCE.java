@@ -139,6 +139,17 @@ public class ApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
+    @GetMapping("/recent")
+    public Mono<ResponseDTO<List<Application>>> findRecentApplications(
+            @RequestParam(required = false) String workspaceId) {
+        log.debug("Going to get the most recent applications for workspace id {}", workspaceId);
+        return service.findByWorkspaceIdAndBaseApplicationsForHome(workspaceId)
+                .take(10)
+                .collectList()
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
+    }
+
+    @JsonView(Views.Public.class)
     @GetMapping(Url.RELEASE_ITEMS)
     public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
         log.debug("Going to get version release items");
