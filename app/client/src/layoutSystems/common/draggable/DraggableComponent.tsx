@@ -2,7 +2,7 @@ import type { DefaultRootState } from "react-redux";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { CSSProperties, DragEventHandler, ReactNode } from "react";
-import React, { useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
@@ -14,6 +14,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
+import { useDragPointer } from "./useDragPointer";
 
 const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;
@@ -106,25 +107,51 @@ function DraggableComponent(props: DraggableComponentProps) {
   const allowDrag = !props.dragDisabled && shouldAllowDrag;
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
-  const onDragStart: DragEventHandler = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
 
-    // allowDrag check is added as react jest test simulation is not respecting default behaviour
-    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
-    if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
+  const beginDrag = useCallback(
+    (e: React.DragEvent | React.PointerEvent) => {
       if (!isFocused) return;
+      if (!draggableRef.current) return;
 
       if (!isSelected) {
         selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
 
       showTableFilterPane();
-      const draggingState = props.generateDragState(e, draggableRef.current);
+      const draggingState = props.generateDragState(
+        e as React.DragEvent,
+        draggableRef.current,
+      );
 
       setDraggingState(draggingState);
+    },
+    [
+      isFocused,
+      isSelected,
+      props,
+      selectWidget,
+      setDraggingState,
+      showTableFilterPane,
+    ],
+  );
+
+  const onDragStart: DragEventHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // allowDrag check is added as react jest test simulation is not respecting default behaviour
+    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
+    if (allowDrag && !(e.metaKey || e.ctrlKey)) {
+      beginDrag(e);
     }
   };
+
+  // Pointer Events API parallel to the legacy drag handlers. Equivalent gesture
+  // lifecycle, with native touch and modern-pointer-device support.
+  const pointerHandlers = useDragPointer({
+    shouldAllowDrag: allowDrag,
+    onDragStart: (_target, event) => beginDrag(event),
+  });
 
   return (
     <DraggableWrapper
@@ -132,6 +159,10 @@ function DraggableComponent(props: DraggableComponentProps) {
       data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
+      onPointerCancel={pointerHandlers.onPointerCancel}
+      onPointerDown={pointerHandlers.onPointerDown}
+      onPointerMove={pointerHandlers.onPointerMove}
+      onPointerUp={pointerHandlers.onPointerUp}
       ref={draggableRef}
       style={dragWrapperStyle}
     >
