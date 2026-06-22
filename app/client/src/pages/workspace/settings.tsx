@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import { InviteMemberForm } from "pages/workspace/InviteMemberForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import {
@@ -148,6 +149,9 @@ export default function Settings() {
           setTabArrLen={setTabArrLen}
           workspacePermissions={currentWorkspace?.userPermissions}
         />
+        {isMembersPage && currentWorkspace?.id && (
+          <InviteMemberForm workspaceId={currentWorkspace.id} />
+        )}
       </SettingsWrapper>
       {currentWorkspace && (
         <FormDialogComponent
