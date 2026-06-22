@@ -126,20 +126,6 @@ public class ActionControllerCE {
                 .map(action -> new ResponseDTO<>(HttpStatus.OK, action));
     }
 
-    /**
-     * @deprecated This endpoint is deprecated. Use /runBehaviour/{branchedActionId} instead.
-     */
-    @Deprecated
-    @JsonView(Views.Public.class)
-    @PutMapping("/executeOnLoad/{branchedActionId}")
-    public Mono<ResponseDTO<ActionDTO>> setExecuteOnLoad(
-            @PathVariable String branchedActionId, @RequestParam Boolean flag) {
-        log.debug("Going to set execute on load for action id {} to {}", branchedActionId, flag);
-        return layoutActionService
-                .setExecuteOnLoad(branchedActionId, flag)
-                .map(action -> new ResponseDTO<>(HttpStatus.OK, action));
-    }
-
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionDTO>> deleteAction(
