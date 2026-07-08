@@ -115,20 +115,20 @@ jobs:
           sudo docker image prune -a -f
           df -h
 
-      - uses: skyramp/testbot@v0.10.2
+      - uses: skyramp/testbot@v0.10.8
         with:
           skyrampLicenseFile: ${{ secrets.SKYRAMP_LICENSE_FILE }}
           anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
           githubToken: ${{ steps.app-token.outputs.token }}
-          skyrampMcpVersion: 0.2.1-rc.1
-          skyrampExecutorVersion: v1.3.24
+          skyrampMcpVersion: 0.3.0-rc.1
+          skyrampExecutorVersion: v1.3.33
 
           targetSetupCommand: >-
             docker compose -f docker-compose.eval.yml run --rm appsmith-builder &&
             docker compose -f docker-compose.eval.yml run --rm appsmith-frontend-builder &&
             docker compose -f docker-compose.eval.yml up mongodb redis appsmith-rts-init appsmith-server appsmith-rts appsmith-frontend -d
           targetReadyCheckCommand: 'curl -sf http://localhost:80'
-          targetReadyCheckTimeout: 300
+          targetReadyCheckTimeout: 3600
           authTokenCommand: 'bash get-auth-token.sh'
 
           testDirectory: 'app/server/appsmith-server/src/test'
