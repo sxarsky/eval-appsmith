@@ -44,7 +44,7 @@ class AppErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <Wrapper>
+        <Wrapper data-testid="app-error-boundary">
           <img alt="App crashed" src={AppCrashImage} />
           <div>
             <p className="bold-text">Oops! Something went wrong</p>
