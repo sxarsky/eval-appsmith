@@ -171,7 +171,7 @@ const Header = () => {
               {"/"}
               <EditorName
                 applicationId={applicationId}
-                className="t--application-name editable-application-name max-w-48"
+                className="t--application-title editable-application-name max-w-48"
                 defaultSavingState={
                   isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
                 }

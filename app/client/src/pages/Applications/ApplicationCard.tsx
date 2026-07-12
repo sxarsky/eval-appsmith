@@ -358,7 +358,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               }}
             >
               <EditableText
-                className="px-3 pt-2 pb-2 t--application-name"
+                className="px-3 pt-2 pb-2 t--application-title"
                 defaultValue={application.name}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 fill
