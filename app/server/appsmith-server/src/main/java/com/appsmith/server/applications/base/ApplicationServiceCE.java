@@ -110,4 +110,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Flux<Application> findByUniqueAppNameRefNameAndApplicationMode(
             String uniqueAppName, String refName, ApplicationMode applicationMode);
+
+    Flux<Application> getRecentApplications();
 }

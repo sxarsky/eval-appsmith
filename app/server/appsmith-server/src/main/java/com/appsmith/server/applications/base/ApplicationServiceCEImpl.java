@@ -1069,4 +1069,32 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
         return repository.findByUniqueAppSlugRefName(uniqueAppName, refName, permissionForApplication);
     }
+
+    /**
+     * Returns the 10 most recently accessed applications for the current user,
+     * ordered by lastAccessedAt descending (i.e. in the order they appear in
+     * {@code UserData.recentlyUsedAppIds}).
+     *
+     * @return Flux of up to 10 recently accessed applications
+     */
+    @Override
+    public Flux<Application> getRecentApplications() {
+        return userDataService.getForCurrentUser().flatMapMany(userData -> {
+            List<String> recentAppIds = userData.getRecentlyUsedAppIds();
+            if (recentAppIds == null || recentAppIds.isEmpty()) {
+                return Flux.empty();
+            }
+            List<String> limitedIds = recentAppIds.size() > 10 ? recentAppIds.subList(0, 10) : recentAppIds;
+            AclPermission readPermission = applicationPermission.getReadPermission();
+            return repository
+                    .queryBuilder()
+                    .criteria(com.appsmith.server.helpers.ce.bridge.Bridge.in(Application.Fields.id, limitedIds))
+                    .permission(readPermission)
+                    .all()
+                    .sort(Comparator.comparingInt(app -> {
+                        int index = limitedIds.indexOf(app.getId());
+                        return index == -1 ? Integer.MAX_VALUE : index;
+                    }));
+        });
+    }
 }
