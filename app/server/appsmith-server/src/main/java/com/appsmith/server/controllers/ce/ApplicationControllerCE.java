@@ -383,4 +383,13 @@ public class ApplicationControllerCE {
                 .isApplicationSlugUnique(branchedApplicationId, uniqueSlugName)
                 .map(url -> new ResponseDTO<>(HttpStatus.OK, url));
     }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/recent")
+    public Mono<ResponseDTO<List<Application>>> getRecentApplications() {
+        log.debug("Going to get recent applications for current user");
+        return service.getRecentApplications()
+                .collectList()
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK, applications));
+    }
 }
