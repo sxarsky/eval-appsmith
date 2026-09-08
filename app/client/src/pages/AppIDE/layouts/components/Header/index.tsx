@@ -53,7 +53,6 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getAppsmithConfigs } from "ee/configs";
 import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "ee/RouteBuilder";
-import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "IDE/hooks";
 import { EditorState } from "IDE/enums";
@@ -199,7 +198,6 @@ const Header = () => {
         </IDEHeader.Center>
         <IDEHeader.Right>
           <ShowUpgradeMenuItem />
-          <HelpBar />
           <StyledDivider orientation={"vertical"} />
           <ToggleModeButton />
           {applicationId && <EditorShareButton setShowModal={setShowModal} />}
