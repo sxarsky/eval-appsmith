@@ -1706,6 +1706,8 @@ class CodeEditor extends Component<Props, State> {
     return (
       <DynamicAutocompleteInputWrapper
         className="t--code-editor-wrapper codeWrapper"
+        data-editor-focused={this.state.isFocused}
+        data-editor-mode={this.props.mode}
         isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
         isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
