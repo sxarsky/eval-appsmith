@@ -115,13 +115,13 @@ jobs:
           sudo docker image prune -a -f
           df -h
 
-      - uses: skyramp/testbot@v0.10.2
+      - uses: skyramp/testbot@6a0b550ed761358faf6f15d90ba3664e7f7ab8a5 # v0.11.12
         with:
           skyrampLicenseFile: ${{ secrets.SKYRAMP_LICENSE_FILE }}
           anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
           githubToken: ${{ steps.app-token.outputs.token }}
-          skyrampMcpVersion: 0.2.1-rc.1
-          skyrampExecutorVersion: v1.3.24
+          skyrampMcpVersion: "0.4.0-rc.1"
+          skyrampExecutorVersion: "v1.3.44"
 
           targetSetupCommand: >-
             docker compose -f docker-compose.eval.yml run --rm appsmith-builder &&
