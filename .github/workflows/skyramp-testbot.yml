@@ -128,7 +128,7 @@ jobs:
             docker compose -f docker-compose.eval.yml run --rm appsmith-frontend-builder &&
             docker compose -f docker-compose.eval.yml up mongodb redis appsmith-rts-init appsmith-server appsmith-rts appsmith-frontend -d
           targetReadyCheckCommand: 'curl -sf http://localhost:80'
-          targetReadyCheckTimeout: 300
+          targetReadyCheckTimeout: 2400
           authTokenCommand: 'bash get-auth-token.sh'
 
           testDirectory: 'app/server/appsmith-server/src/test'
