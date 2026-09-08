@@ -115,7 +115,7 @@ jobs:
           sudo docker image prune -a -f
           df -h
 
-      - uses: skyramp/testbot@6a0b550ed761358faf6f15d90ba3664e7f7ab8a5 # v0.11.12
+      - uses: skyramp/testbot@4722126f99847b5ef600de0a4b26e3349fa0eafe # v0.11.12
         with:
           skyrampLicenseFile: ${{ secrets.SKYRAMP_LICENSE_FILE }}
           anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
