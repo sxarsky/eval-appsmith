@@ -13,7 +13,7 @@
   border: var(--modal-overlay-content-outline);
   padding: 3px;
   background-clip: content-box;
-  border-radius: 4px;
+  border-radius: 8px;
   flex: 1;
   display: flex;
   justify-content: center;
