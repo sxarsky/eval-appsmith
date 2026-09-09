@@ -130,6 +130,7 @@ jobs:
           targetReadyCheckCommand: 'curl -sf http://localhost:80'
           targetReadyCheckTimeout: 2400
           authTokenCommand: 'bash get-auth-token.sh'
+          uiCredentials: 'eval@skyramp.dev:EvalPass123!'
 
           testDirectory: 'app/server/appsmith-server/src/test'
           autoCommit: true
