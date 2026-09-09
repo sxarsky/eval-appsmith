@@ -9,6 +9,7 @@ import { Button } from "@appsmith/ads";
 import classNames from "classnames";
 
 const VIEW_MIN_HEIGHT = 38;
+const BOTTOM_PANEL_HEIGHT_KEY = "appsmith_bottom_panel_height";
 
 const Container = styled.div<{ displayMode: ViewDisplayMode }>`
   ${ResizerCSS};
@@ -117,6 +118,25 @@ const ViewHide = (props: ViewHideProps) => {
 const BottomView = (props: Props) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const { className = "" } = props;
+  // Resizer (a child) fires its own initial onResizeComplete on mount, before
+  // this component's restore effect below runs (child effects commit before
+  // parent effects) -- that call reports whatever the current default height
+  // is, and would clobber the persisted value in localStorage before we ever
+  // get a chance to read it back. Skip persisting on that first, synthetic
+  // call; only persist once the restore effect has run.
+  const hasRestoredRef = useRef(false);
+
+  // Restore persisted height from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(BOTTOM_PANEL_HEIGHT_KEY);
+    if (saved !== null) {
+      const savedHeight = parseInt(saved, 10);
+      if (!isNaN(savedHeight) && savedHeight >= VIEW_MIN_HEIGHT + 50) {
+        props.setHeight(savedHeight);
+      }
+    }
+    hasRestoredRef.current = true;
+  }, []);
 
   // Handle the height of the view when toggling the hidden state
   useEffect(() => {
@@ -131,12 +151,24 @@ const BottomView = (props: Props) => {
     }
   }, [props.hidden, props.behaviour]);
 
+  const handleResizeComplete = (height: number) => {
+    if (hasRestoredRef.current) {
+      try {
+        localStorage.setItem(BOTTOM_PANEL_HEIGHT_KEY, String(height));
+      } catch {} // ignore storage errors
+    }
+    props.setHeight(height);
+  };
+
+  const panelSizePct = Math.round((props.height / window.innerHeight) * 100);
+
   return (
     <Container
       className={classNames("select-text", {
         [className]: true,
         "t--ide-bottom-view": !props.hidden,
       })}
+      data-panel-size={panelSizePct}
       displayMode={props.displayMode || ViewDisplayMode.BLOCK}
       ref={panelRef}
     >
@@ -144,7 +176,7 @@ const BottomView = (props: Props) => {
         <Resizer
           initialHeight={props.height}
           minHeight={VIEW_MIN_HEIGHT + 50}
-          onResizeComplete={props.setHeight}
+          onResizeComplete={handleResizeComplete}
           panelRef={panelRef}
         />
       )}
