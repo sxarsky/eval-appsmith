@@ -117,6 +117,7 @@ jobs:
 
       - uses: skyramp/testbot@v0.10.2
         with:
+          uiCredentials: 'eval@skyramp.dev:EvalPass123!'
           skyrampLicenseFile: ${{ secrets.SKYRAMP_LICENSE_FILE }}
           anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
           githubToken: ${{ steps.app-token.outputs.token }}
@@ -128,7 +129,7 @@ jobs:
             docker compose -f docker-compose.eval.yml run --rm appsmith-frontend-builder &&
             docker compose -f docker-compose.eval.yml up mongodb redis appsmith-rts-init appsmith-server appsmith-rts appsmith-frontend -d
           targetReadyCheckCommand: 'curl -sf http://localhost:80'
-          targetReadyCheckTimeout: 300
+          targetReadyCheckTimeout: '2400'
           authTokenCommand: 'bash get-auth-token.sh'
 
           testDirectory: 'app/server/appsmith-server/src/test'
